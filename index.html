@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>hana center</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+        background: url('bq.jpg') 
+        no-repeat center center fixed;
+        background-size: cover;
+        min-height: 100dvh;
+        overflow-x: hidden;
+        overflow-y: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #566a7f;
+        }
+        canvas {
+            touch-action: none;
+            outline: none;
+        }
+
+        /* SCREEN 1: LOADING SCREEN */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.8s ease;
+        }
+
+        .flower-loader {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .petal-circle {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            animation: rotateLoader 12s linear infinite;
+        }
+
+        .petal {
+            position: absolute;
+            width: 20px;
+            height: 30px;
+            background: #ffb6c1;
+            border-radius: 0 80% 0 80%;
+            opacity: 0.85;
+            transform-origin: 60px 60px;
+        }
+
+        .petal:nth-child(1) { transform: rotate(0deg) translate(0, -8px); }
+        .petal:nth-child(2) { transform: rotate(45deg) translate(0, -4px); }
+        .petal:nth-child(3) { transform: rotate(90deg) translate(0, 0px); }
+        .petal:nth-child(4) { transform: rotate(135deg) translate(0, -4px); }
+        .petal:nth-child(5) { transform: rotate(180deg) translate(0, -8px); }
+        .petal:nth-child(6) { transform: rotate(225deg) translate(0, -4px); }
+        .petal:nth-child(7) { transform: rotate(270deg) translate(0, 0px); }
+        .petal:nth-child(8) { transform: rotate(315deg) translate(0, -4px); }
+
+        @keyframes rotateLoader {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            color: #ff94a4;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .progress-bar-container {
+            width: 140px;
+            height: 4px;
+            background-color: rgba(255, 182, 193, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #ff94a4;
+            transition: width 0.1s linear;
+        }
+
+        .progress-num { font-size: 0.8rem; color: #ff94a4; }
+
+        /* SCREEN 2: UI PASSWORD */
+        #password-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
+
+        .pad-card {
+            background: rgba(255, 255, 255, 0.88);
+            padding: 25px 25px 30px 25px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            width: 90%;
+            max-width: 340px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sticker-container {
+            position: relative;
+            margin-bottom: 15px;
+            animation: floatSticker 3s ease-in-out infinite alternate;
+        }
+
+        .top-sticker-img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+            animation: wobbleSticker 2.5s ease-in-out infinite;
+        }
+
+        @keyframes floatSticker {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-8px); }
+        }
+
+        @keyframes wobbleSticker {
+            0%, 100% { transform: rotate(-4deg); }
+            50% { transform: rotate(4deg); }
+        }
+
+        .password-instruction {
+            font-size: 0.9rem;
+            color: #7d8c9e;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .dots-container { display: flex; gap: 12px; margin-bottom: 25px; }
+        .dot {
+            width: 10px;
+            height: 10px;
+            border: 2px solid #ffb6c1;
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+        }
+        .dot.active { background-color: #ffb6c1; transform: scale(1.1); }
+        .dot.error { border-color: #ff4d6d; background-color: #ff4d6d; animation: shake 0.3s ease; }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            width: 100%;
+        }
+
+        .key-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            color: #6c7a89;
+            font-size: 1.25rem;
+            font-weight: 600;
+            padding: 12px 0;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.1s ease;
+        }
+        .key-btn:active { background: #ffeef2; transform: scale(0.95); }
+        .key-btn.action-btn { font-size: 1rem; background: #fff9fa; }
+
+        /* EFFECT: TRANSITION BLOOM EFFECT */
+        #bloom-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 80;
+            pointer-events: none;
+            display: none;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+        }
+
+        .bloom-cell {
+            background: linear-gradient(135deg, #ffd1dc, #bfe3ee);
+            transform: scale(0);
+            transition: transform 0.7s cubic-bezier(0.1, 0.8, 0.3, 1);
+            border-radius: 50%;
+        }
+
+          /* SCREEN 3: MAIN 3D WEB */
+#main-web {
+    position: relative;
+    width: 100vw;
+    height: 100dvh;
+    display: none;
+    overflow: hidden;
+}
+
+        #canvas-3d {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* CONTENT OVERLAYS */
+      #content-layer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 15;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+        #content-layer.active {
+            pointer-events: auto;
+            opacity: 1;
+        }
+
+            .menu-content {
+            max-height: 75vh;
+            overflow-y: auto;
+                
+            background: rgba(228, 111, 215, 1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            display: none; 
+            text-align: center;
+        }
+
+        .menu-content.show {
+            display: block;
+            animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popUp {
+            0% { transform: scale(0.8) translateY(20px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .menu-content h2 {
+            color: #ff94a4;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .fav-list {
+            list-style: none;
+            text-align: left;
+            color: #566a7f;
+            line-height: 1.8;
+            font-weight: 500;
+        }
+        .fav-list li::before { content: '🌸'; margin-right: 10px; }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .gallery-grid img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .bq-img-large {
+            width: 100%;
+            border-radius: 16px;
+            border: 3px solid #fff;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        /* OVERLAY / CLOSE BUTTON */
+        #ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 50px;
+            z-index: 20;
+        }
+
+        .close-view-btn {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 182, 193, 0.5);
+            padding: 14px 32px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #ff94a4;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+            pointer-events: auto;
+        }
+
+        .close-view-btn.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+.watermark-box{
+    position:absolute;
+    bottom:20px;
+    right:20px;
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    background:rgba(255,255,255,0.15);
+    backdrop-filter:blur(15px);
+    -webkit-backdrop-filter:blur(15px);
+
+    padding:10px 15px;
+    border-radius:30px;
+
+    color:#42445A;
+    z-index:50;
+
+    border:1px solid rgba(255,255,255,0.2);
+    box-shadow:0 5px 20px rgba(0,0,0,0.15);
+}
+
+.watermark-box span{
+    font-size:14px;
+    letter-spacing:1px;
+}
+
+.watermark-box button{
+    border:none;
+    background:none;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+        .music-control {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    z-index: 30;
+
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(12px);
+
+    color: white;
+    padding: 10px 18px;
+    border-radius: 25px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+    user-select: none;
+
+    border: 1px solid rgba(255,255,255,0.25);
+}
+
+.music-control:hover {
+    background: rgba(193, 185, 185, 0.33);
+}
+.top-title{
+    position:absolute;
+    top:20px;
+    left:50%;
+    transform:translateX(-50%);
+
+    background:rgba(255, 255, 255, 0.19);
+    backdrop-filter:blur(15px);
+
+    padding:10px 25px;
+    border-radius:30px;
+
+    color:rgba(236, 105, 209, 1);
+    font-size:18px;
+    font-weight:700;
+    letter-spacing:1px;
+
+    border:1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:0 5px 20px rgba(0,0,0,0.15);
+
+    z-index:50;
+}
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .shake-animation { animation: shake 0.4s ease; }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="flower-loader">
+            <div class="petal-circle">
+                <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+                <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+            </div>
+        </div>
+        <div class="loading-text">haiii...</div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="load-progress"></div>
+        </div>
+        <div class="progress-num" id="progress-text">0%</div>
+    </div>
+
+    <div id="password-screen">
+        <div class="pad-card" id="input-card">
+            <div class="sticker-container">
+                <img src="8.png" alt="Sticker" class="top-sticker-img" onerror="this.style.display='none';">
+            </div>
+            
+            <div class="password-instruction" id="pin-message">apa bede kodena</div>
+            
+            <div class="dots-container">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>
+
+            <div class="keypad">
+                <button class="key-btn" onclick="pressKey('1')">1</button>
+                <button class="key-btn" onclick="pressKey('2')">2</button>
+                <button class="key-btn" onclick="pressKey('3')">3</button>
+                <button class="key-btn" onclick="pressKey('4')">4</button>
+                <button class="key-btn" onclick="pressKey('5')">5</button>
+                <button class="key-btn" onclick="pressKey('6')">6</button>
+                <button class="key-btn" onclick="pressKey('7')">7</button>
+                <button class="key-btn" onclick="pressKey('8')">8</button>
+                <button class="key-btn" onclick="pressKey('9')">9</button>
+                <button class="key-btn action-btn" style="opacity:0; pointer-events:none;"></button>
+                <button class="key-btn" onclick="pressKey('0')">0</button>
+                <button class="key-btn action-btn" onclick="pressDelete()">⌫</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="bloom-transition"></div>
+
+   <div id="main-web">
+
+    <div class="top-title">hana center ✨</div>
+
+    <div id="canvas-3d"></div>
+        
+        <div id="content-layer">
+            <div id="content-menu_fav" class="menu-content">
+                <h2>fav hana</h2>
+                <ul class="fav-list">
+                    <li>nonton katanyaa</li>
+                    <li>mainin perasaan+suka nanjak katanyaa</li>
+                    <li>mainn hp</li>
+                    <li>masakk katanya</li>
+                </ul>
+            </div>
+            
+            <div id="content-menu_gallery" class="menu-content">
+                <h2>pict</h2>
+                <div class="gallery-grid">
+                    <img src="1.jpg" alt="Foto 1" onerror="this.src='https://via.placeholder.com/150/ffb6c1/ffffff?text=Foto+1'">
+                    <img src="2.jpg" alt="Foto 2" onerror="this.src='https://via.placeholder.com/150/8ecae6/ffffff?text=Foto+2'">
+                    <img src="3.jpg" alt="Foto 3" onerror="this.src='https://via.placeholder.com/150/ff94a4/ffffff?text=Foto+3'">
+                    <img src="4.jpg" alt="Foto 4" onerror="this.src='https://via.placeholder.com/150/bfe3ee/ffffff?text=Foto+4'">
+                   <img src="5.jpg" alt="Foto 5" onerror="this.src='https://via.placeholder.com/150/bfe3ee/ffffff?text=Foto+4'">
+                </div>
+            </div>
+            <div id="content-menu_bq" class="menu-content">
+                <h2>buket lagii</h2>
+                <img src="bq.png" class="bq-img-large" alt="Bouquet" onerror="this.src='https://via.placeholder.com/300/ffd1dc/ffffff?text=Foto+Bouquet'">
+            </div>
+            <div id="content-menu_letter" class="menu-content">
+    <h2>surat lagii hehe</h2>
+
+    <p style="
+        color:white;
+        line-height:1.8;
+        font-size:16px;
+        text-align:center;
+    ">
+        jangan maksaan diri yaa hana💕<br><br>
+
+        jaga kesehatann okee 🌷<br><br>
+
+        maafkann akuu banyak kurangnyaa 🫶
+    </p>
+</div>
+            
+        </div>
+
+        <div id="ui-overlay">
+            <button class="close-view-btn" id="btn-close" onclick="closeTargetView()">kembali</button>
+        </div>
+        <div class="watermark">—han crazzy killer</div>
+        <div class="music-control" onclick="toggleMusic()">
+    🎵 Music
+</div>
+
+<div class="watermark-box">
+    <span>—han crazzy killer</span>
+    <button onclick="toggleMusic()" id="musicBtn">
+       🔘
+    </button>
+</div>
+
+<audio id="bgMusic" loop>
+    <source src="about_you.mp3" type="audio/mpeg">
+</audio>
+    </div>
+
+    <script>
+        const CORRECT_PIN = ["0", "2", "0", "7", "0", "8"];
+        let currentPinInput = [];
+
+        const orbitData = [
+    { type: 'menu_fav', title: 'favorit' },
+    { type: 'menu_gallery', title: 'hana' },
+    { type: 'menu_spotify', title: 'spotify' },
+    { type: 'menu_bq', title: 'bouquet' },
+    { type: 'menu_letter', title: 'surat' }
+];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const progress = document.getElementById('load-progress');
+            const progressText = document.getElementById('progress-text');
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        const loader = document.getElementById('loading-screen');
+                        loader.style.opacity = '0';
+                        setTimeout(() => {
+                            loader.style.display = 'none';
+                            document.getElementById('password-screen').style.display = 'flex';
+                        }, 600);
+                    }, 200);
+                } else {
+                    width += Math.floor(Math.random() * 25) + 15;
+                    if(width > 100) width = 100;
+                    progress.style.width = width + '%';
+                    progressText.innerText = width + '%';
+                }
+            }, 40);
+        });
+
+        const dots = document.querySelectorAll('.dot');
+        const pinMsg = document.getElementById('pin-message');
+        const inputCard = document.getElementById('input-card');
+
+        function updateDots() {
+            dots.forEach((dot, index) => {
+                if (index < currentPinInput.length) dot.classList.add('active');
+                else { dot.classList.remove('active'); dot.classList.remove('error'); }
+            });
+        }
+
+        function pressKey(num) {
+            if (currentPinInput.length < 6) {
+                currentPinInput.push(num);
+                updateDots();
+                if (currentPinInput.length === 6) setTimeout(verifyPin, 250);
+            }
+        }
+
+        function pressDelete() {
+            if (currentPinInput.length > 0) { currentPinInput.pop(); updateDots(); }
+        }
+
+        function verifyPin() {
+            let isCorrect = currentPinInput.every((val, index) => val === CORRECT_PIN[index]);
+            if (isCorrect) {
+                pinMsg.innerText = "yeayy benar!";
+                setTimeout(() => { executeTransitionEffect(); }, 400);
+            } else {
+                pinMsg.innerText = "makanya jangan sotta";
+                dots.forEach(dot => dot.classList.add('error'));
+                inputCard.classList.add('shake-animation');
+                setTimeout(() => {
+                    currentPinInput = [];
+                    updateDots();
+                    inputCard.classList.remove('shake-animation');
+                }, 600);
+            }
+        }
+
+        function executeTransitionEffect() {
+            bgMusic.volume = 0.5;
+bgMusic.play().catch(()=>{});
+musicPlaying = true;
+            const gridContainer = document.getElementById('bloom-transition');
+            gridContainer.style.display = 'grid';
+            for (let i = 0; i < 16; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('bloom-cell');
+                gridContainer.appendChild(cell);
+            }
+            const cells = document.querySelectorAll('.bloom-cell');
+            cells.forEach((cell, index) => {
+                setTimeout(() => { cell.style.transform = 'scale(2.2)'; }, (index % 4) * 35 + Math.floor(index / 4) * 35);
+            });
+            setTimeout(() => {
+                document.getElementById('password-screen').style.display = 'none';
+                document.getElementById('main-web').style.display = 'block';
+                init3DSpace();
+                cells.forEach((cell, index) => {
+                    setTimeout(() => { cell.style.transform = 'scale(0)'; }, index * 15);
+                });
+                setTimeout(() => {
+                    gridContainer.style.display = 'none';
+                    gridContainer.innerHTML = '';
+                }, 800);
+            }, 600);
+        }
+
+        let scene, camera, renderer, controls, heartMesh;
+        let orbitMeshes = [];
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+        
+        const orbitRadius = 3.5; 
+        
+        let appState = 'ORBIT'; 
+        let targetCamPos = new THREE.Vector3();
+        let targetLookAt = new THREE.Vector3();
+        let savedCamPos = new THREE.Vector3();
+        let savedTarget = new THREE.Vector3();
+
+        function init3DSpace() {
+            const container = document.getElementById('canvas-3d');
+            scene = new THREE.Scene();
+            
+            camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.1, 1000);
+            // Default kamera diperjauh sedikit (dari y=3, z=7.5 jadi y=3.5, z=8.5)
+            camera.position.set(0, 3.5, 8.5);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.08; 
+            controls.autoRotate = true; 
+            controls.autoRotateSpeed = 1.2;
+            controls.enablePan = false; 
+            controls.minDistance = 3.5;
+            controls.maxDistance = 12; // max distance diperbesar
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+            dirLight.position.set(5, 10, 6);
+            scene.add(dirLight);
+
+            const heartShape = new THREE.Shape();
+            heartShape.moveTo(0, -1.2);
+            heartShape.bezierCurveTo(-1.8, 0.4, -3.8, 2.2, -3.8, 4.2);
+            heartShape.bezierCurveTo(-3.8, 6.0, -2.2, 7.6, 0, 5.0);
+            heartShape.bezierCurveTo(2.2, 7.6, 3.8, 6.0, 3.8, 4.2);
+            heartShape.bezierCurveTo(3.8, 2.2, 1.8, 0.4, 0, -1.2);
+
+            const extrudeSettings = { depth: 0.7, bevelEnabled: true, bevelSegments: 16, steps: 4, bevelSize: 0.25, bevelThickness: 0.25, curveSegments: 96 };
+            const heartGeometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
+            heartGeometry.center();
+
+            const heartMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x8ecae6, emissive: 0x112233, roughness: 0.18, metalness: 0.05 
+            });
+            heartMesh = new THREE.Mesh(heartGeometry, heartMaterial);
+            heartMesh.scale.set(0.3, 0.3, 0.3); 
+            scene.add(heartMesh);
+
+            const orbitGeometry = new THREE.BufferGeometry();
+            const orbitVertices = [];
+            for (let i = 0; i <= 128; i++) {
+                const theta = (i / 128) * Math.PI * 2;
+                orbitVertices.push(Math.cos(theta) * orbitRadius, 0, Math.sin(theta) * orbitRadius);
+            }
+            orbitGeometry.setAttribute('position', new THREE.Float32BufferAttribute(orbitVertices, 3));
+            let orbitTrackLine = new THREE.Line(orbitGeometry, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.18 }));
+            scene.add(orbitTrackLine); 
+
+            const frameGeometry = new THREE.BoxGeometry(0.95, 1.2, 0.05);
+
+            orbitData.forEach((data, index) => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 400;
+                canvas.height = 500;
+                const ctx = canvas.getContext('2d');
+
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, 400, 500);
+
+if (data.type === 'menu_fav') {
+    const img = new Image();
+    img.src = 'fav.jpg';
+
+    img.onload = () => {
+        ctx.drawImage(img, 24, 24, 352, 352);
+        ctx.fillStyle = '#ff94a4';
+        ctx.font = 'bold 36px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('fav', 200, 440);
+        buildMesh(frameGeometry, canvas, data, index);
+    };
+
+    img.onerror = () => {
+        ctx.fillStyle = '#ffeef2';
+        ctx.fillRect(24, 24, 352, 352);
+        buildMesh(frameGeometry, canvas, data, index);
+    };
+
+} else if (data.type === 'menu_gallery') {
+    const img = new Image();
+    img.src = 'gal.jpg';
+
+    img.onload = () => {
+        ctx.drawImage(img, 24, 24, 352, 352);
+        ctx.fillStyle = '#8ecae6';
+        ctx.font = 'bold 34px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('galeri', 200, 440);
+        buildMesh(frameGeometry, canvas, data, index);
+    };
+
+    img.onerror = () => {
+        ctx.fillStyle = '#eef5ff';
+        ctx.fillRect(24, 24, 352, 352);
+        buildMesh(frameGeometry, canvas, data, index);
+    };
+
+} else if (data.type === 'menu_spotify') {
+    const img = new Image();
+    img.src = 'spotify.jpg';
+
+    img.onload = () => {
+        ctx.drawImage(img, 24, 24, 352, 352);
+        ctx.fillStyle = '#1db954';
+        ctx.font = 'bold 34px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('spotify', 200, 440);
+        buildMesh(frameGeometry, canvas, data, index);
+    };
+
+    img.onerror = () => {
+        ctx.fillStyle = '#dfffe8';
+        ctx.fillRect(24, 24, 352, 352);
+        buildMesh(frameGeometry, canvas, data, index);
+    };
+} else if (data.type === 'menu_letter') {
+    const img = new Image();
+    img.src = 'amplop.png';
+
+    img.onload = () => {
+        ctx.drawImage(img, 24, 24, 352, 352);
+        ctx.fillStyle = '#ff94a4';
+        ctx.font = 'bold 34px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('surat', 200, 440);
+        buildMesh(frameGeometry, canvas, data, index);
+    };
+
+    img.onerror = () => {
+        ctx.fillStyle = '#fff0f5';
+        ctx.fillRect(24, 24, 352, 352);
+
+        ctx.fillStyle = '#ff94a4';
+        ctx.font = 'bold 90px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('💌', 200, 200);
+
+        ctx.font = 'bold 34px sans-serif';
+        ctx.fillText('surat', 200, 440);
+
+        buildMesh(frameGeometry, canvas, data, index);
+    };
+                } else if (data.type === 'menu_bq') {
+                    const img = new Image();
+                    img.src = 'buket.jpg';
+                    img.onload = () => {
+                        ctx.drawImage(img, 24, 24, 352, 352);
+                        ctx.fillStyle = '#8ecae6';
+                        ctx.font = 'bold 34px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('bouquet', 200, 440);
+                        buildMesh(frameGeometry, canvas, data, index);
+                    };
+                    img.onerror = () => {
+                        ctx.fillStyle = '#eef5ff';
+                        ctx.fillRect(24, 24, 352, 352);
+                        ctx.fillStyle = '#8ecae6';
+                        ctx.font = 'bold 90px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText('💐', 200, 200); 
+                        ctx.font = 'bold 34px sans-serif';
+                        ctx.fillText('bouquet', 200, 440);
+                        buildMesh(frameGeometry, canvas, data, index);
+                    };
+                }
+            });
+
+            setupTouchEvents();
+            window.addEventListener('resize', onWindowResize);
+            animate3D();
+        }
+
+        function buildMesh(geometry, canvas, data, index) {
+            const finalTexture = new THREE.CanvasTexture(canvas);
+            finalTexture.colorSpace = THREE.SRGBColorSpace;
+            
+            const materials = [
+                new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }),
+                new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }),
+                new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }),
+                new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }),
+                new THREE.MeshStandardMaterial({ map: finalTexture, roughness: 0.2 }), 
+                new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 })
+            ];
+
+            const mesh = new THREE.Mesh(geometry, materials);
+            mesh.userData = { type: data.type, title: data.title, index: index };
+            
+            const angle = index * (Math.PI * 2 / orbitData.length);
+            mesh.position.set(Math.cos(angle) * orbitRadius, 0, Math.sin(angle) * orbitRadius);
+            
+            orbitMeshes.push(mesh);
+            scene.add(mesh);
+        }
+
+        function setupTouchEvents() {
+            let startX, startY;
+            const canvasEl = renderer.domElement;
+            
+            canvasEl.addEventListener('pointerdown', (e) => {
+                startX = e.clientX;
+                startY = e.clientY;
+            });
+
+            canvasEl.addEventListener('pointerup', (e) => {
+                let diffX = Math.abs(e.clientX - startX);
+                let diffY = Math.abs(e.clientY - startY);
+                if (diffX < 5 && diffY < 5 && appState === 'ORBIT') {
+                    processCanvasClick(e);
+                }
+            });
+        }
+
+        let clock = new THREE.Clock();
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            const elapsed = clock.getElapsedTime();
+
+            if (heartMesh) {
+                const pulse = 0.3 + Math.sin(elapsed * 4.0) * 0.008;
+                heartMesh.scale.set(pulse, pulse, pulse);
+                heartMesh.rotation.y = elapsed * 0.25;
+            }
+
+            orbitMeshes.forEach(mesh => {
+                if (
+    mesh.userData.type === 'menu_bq' ||
+    mesh.userData.type === 'menu_letter'
+) {
+                    mesh.position.y = Math.sin(elapsed * 2.5) * 0.15; 
+                }
+                mesh.lookAt(camera.position);
+            });
+
+            if (appState === 'ORBIT') {
+                controls.update(); 
+            } 
+            else if (appState === 'TRANSITION_IN' || appState === 'TRANSITION_OUT') {
+                camera.position.lerp(targetCamPos, 0.06);
+                controls.target.lerp(targetLookAt, 0.06);
+                controls.update(); 
+
+                if (appState === 'TRANSITION_OUT' && camera.position.distanceTo(targetCamPos) < 0.1) {
+                    appState = 'ORBIT';
+                    controls.enabled = true;
+                    controls.autoRotate = true;
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function processCanvasClick(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(orbitMeshes);
+
+            if (intersects.length > 0) {
+                const clickedMesh = intersects[0].object;
+                
+                if (clickedMesh.userData.type === 'menu_spotify') {
+                    window.open('https://open.spotify.com/playlist/4TsvCqz4rvwivfqUyK1TCo?si=EGhJLmN3SkG0Z6SY0qzcOA&utm_source=copy-link', '_blank');
+                    return; 
+                }
+
+                focusOnTarget(clickedMesh);
+            }
+        }
+
+        function focusOnTarget(mesh) {
+            savedCamPos.copy(camera.position);
+            savedTarget.copy(controls.target);
+
+            controls.enabled = false;
+            controls.autoRotate = false;
+            appState = 'TRANSITION_IN'; 
+
+            const meshPos = mesh.position.clone();
+            const direction = new THREE.Vector3().copy(meshPos).normalize();
+            
+            // Jarak zoom out diperjauh (dari 1.5 menjadi 2.3)
+            targetCamPos.copy(meshPos).add(direction.multiplyScalar(5)); 
+            targetCamPos.y += 0.05; 
+            targetLookAt.copy(meshPos);
+
+            document.getElementById('btn-close').classList.add('show');
+
+            setTimeout(() => {
+                appState = 'FOCUSED';
+                showContent(mesh.userData.type);
+            }, 600);
+        }
+
+        function showContent(menuType) {
+            document.querySelectorAll('.menu-content').forEach(el => el.classList.remove('show'));
+            const contentDiv = document.getElementById('content-' + menuType);
+            if (contentDiv) {
+                contentDiv.classList.add('show');
+                document.getElementById('content-layer').classList.add('active');
+            }
+        }
+
+        function closeTargetView() {
+            document.getElementById('btn-close').classList.remove('show');
+            document.getElementById('content-layer').classList.remove('active');
+            document.querySelectorAll('.menu-content').forEach(el => el.classList.remove('show'));
+            
+            targetCamPos.copy(savedCamPos);
+            targetLookAt.copy(savedTarget);
+            
+            appState = 'TRANSITION_OUT';
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        const bgMusic = document.getElementById('bgMusic');
+let musicPlaying = false;
+
+function toggleMusic() {
+    if (musicPlaying) {
+        bgMusic.pause();
+        document.querySelector('.music-control').innerHTML = '🔇 Off';
+    } else {
+        bgMusic.play();
+        document.querySelector('.music-control').innerHTML = '🎵 On';
+    }
+
+    musicPlaying = !musicPlaying;
+}
+    </script>
+</body>
+</html>
