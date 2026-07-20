@@ -14,16 +14,17 @@
         }
 
         body {
-            background: url('bq.jpg') no-repeat center center fixed;
-            background-size: cover;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #566a7f;
+        background: url('bq.jpg') 
+        no-repeat center center fixed;
+        background-size: cover;
+        min-height: 100vh;
+        overflow-x: hidden;
+        overflow-y: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #566a7f;
         }
-
         canvas {
             touch-action: none;
             outline: none;
@@ -229,13 +230,14 @@
         }
 
         /* SCREEN 3: MAIN 3D WEB */
-        #main-web {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            display: none;
-            overflow: hidden;
-        }
+             overflow: hidden;
+#main-web {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: none;
+    overflow: hidden;
+}
 
         #canvas-3d {
             width: 100%;
@@ -244,13 +246,14 @@
         }
 
         /* CONTENT OVERLAYS */
-        #content-layer {
-            position: absolute;
+      #content-layer { : absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 90%;
-            max-width: 400px;
+             width: 90%;
+             max-width: 400px;
+             max-height: 80vh;
+             overflow-y: auto;
             z-index: 15;
             pointer-events: none; 
             opacity: 0;
@@ -262,7 +265,10 @@
             opacity: 1;
         }
 
-        .menu-content {
+            .menu-content {
+            max-height: 75vh;
+            overflow-y: auto;
+                
             background: rgba(228, 111, 215, 1);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.5);
